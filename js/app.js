@@ -6,6 +6,17 @@ let attendanceData = {};
 let currentSessionCode = null;
 let selectedMemberFilter = null;
 
+// Helper function to escape HTML to prevent XSS
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // Initialize the application
 async function init() {
     try {
@@ -313,9 +324,9 @@ function showAttendeeModal(sessionCode) {
     const sessionInfo = document.getElementById('sessionInfo');
     sessionInfo.innerHTML = `
         <h6>課程資訊</h6>
-        <p><strong>課程名稱：</strong>${session.name}</p>
-        <p><strong>代號：</strong>${session.code}</p>
-        <p><strong>講師：</strong>${session.speaker}</p>
+        <p><strong>課程名稱：</strong>${escapeHtml(session.name)}</p>
+        <p><strong>代號：</strong>${escapeHtml(session.code)}</p>
+        <p><strong>講師：</strong>${escapeHtml(session.speaker)}</p>
         ${session.noReplay ? '<span class="badge bg-danger">無回放</span>' : ''}
     `;
     
@@ -325,7 +336,7 @@ function showAttendeeModal(sessionCode) {
     if (attendees.length > 0) {
         currentAttendees.innerHTML = `
             <h6>目前已標記參加的成員</h6>
-            <p>${attendees.join(', ')}</p>
+            <p>${attendees.map(name => escapeHtml(name)).join(', ')}</p>
         `;
     } else {
         currentAttendees.innerHTML = `
