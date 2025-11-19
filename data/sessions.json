@@ -1,0 +1,139 @@
+{
+  "sessions": [
+    {
+      "code": "S001",
+      "name": "ASP.NET Core 最新功能介紹",
+      "speaker": "張大明",
+      "noReplay": false,
+      "room": "R1",
+      "timeSlot": "T1",
+      "colspan": 1
+    },
+    {
+      "code": "S002",
+      "name": "Entity Framework Core 進階應用",
+      "speaker": "李小華",
+      "noReplay": true,
+      "room": "R2",
+      "timeSlot": "T1",
+      "colspan": 1
+    },
+    {
+      "code": "S003",
+      "name": "Blazor 實戰開發",
+      "speaker": "王建國",
+      "noReplay": false,
+      "room": "R3",
+      "timeSlot": "T1",
+      "colspan": 1
+    },
+    {
+      "code": "S004",
+      "name": "微服務架構設計",
+      "speaker": "陳美玲",
+      "noReplay": false,
+      "room": "R4",
+      "timeSlot": "T1",
+      "colspan": 1
+    },
+    {
+      "code": "S005",
+      "name": ".NET MAUI 跨平台開發",
+      "speaker": "林志明",
+      "noReplay": false,
+      "room": "R1",
+      "timeSlot": "T2",
+      "colspan": 2
+    },
+    {
+      "code": "S006",
+      "name": "Azure Functions 無伺服器應用",
+      "speaker": "黃淑芬",
+      "noReplay": true,
+      "room": "R3",
+      "timeSlot": "T2",
+      "colspan": 1
+    },
+    {
+      "code": "S007",
+      "name": "SignalR 即時通訊",
+      "speaker": "吳家豪",
+      "noReplay": false,
+      "room": "R4",
+      "timeSlot": "T2",
+      "colspan": 1
+    },
+    {
+      "code": "S008",
+      "name": "C# 12 新特性",
+      "speaker": "鄭雅文",
+      "noReplay": false,
+      "room": "R1",
+      "timeSlot": "T4",
+      "colspan": 1
+    },
+    {
+      "code": "S009",
+      "name": ".NET 性能優化技巧",
+      "speaker": "劉俊傑",
+      "noReplay": false,
+      "room": "R2",
+      "timeSlot": "T4",
+      "colspan": 1
+    },
+    {
+      "code": "S010",
+      "name": "容器化部署實務",
+      "speaker": "許文龍",
+      "noReplay": true,
+      "room": "R3",
+      "timeSlot": "T4",
+      "colspan": 1
+    },
+    {
+      "code": "S011",
+      "name": "CI/CD 自動化流程",
+      "speaker": "謝佳玲",
+      "noReplay": false,
+      "room": "R4",
+      "timeSlot": "T4",
+      "colspan": 1
+    },
+    {
+      "code": "S012",
+      "name": "Clean Architecture 實作",
+      "speaker": "周志強",
+      "noReplay": false,
+      "room": "R1",
+      "timeSlot": "T5",
+      "colspan": 1
+    },
+    {
+      "code": "S013",
+      "name": "單元測試最佳實踐",
+      "speaker": "蔡明宏",
+      "noReplay": false,
+      "room": "R2",
+      "timeSlot": "T5",
+      "colspan": 1
+    },
+    {
+      "code": "S014",
+      "name": "GraphQL 與 .NET",
+      "speaker": "楊雅婷",
+      "noReplay": false,
+      "room": "R3",
+      "timeSlot": "T5",
+      "colspan": 1
+    },
+    {
+      "code": "S015",
+      "name": "安全性最佳實踐",
+      "speaker": "賴建宏",
+      "noReplay": true,
+      "room": "R4",
+      "timeSlot": "T5",
+      "colspan": 1
+    }
+  ]
+}

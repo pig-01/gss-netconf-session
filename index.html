@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.NET Conf 2025 議程表 - BDPDD 團隊</title>
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">.NET Conf 2025 議程表 - BDPDD 團隊</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <strong>使用說明：</strong> 點擊任何課程即可標記您的參加意願。您的標記將儲存在本地端，供您和其他使用此裝置的人瀏覽。
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div id="memberFilter" class="mb-3">
+                    <label class="form-label">篩選成員：</label>
+                    <div id="memberButtons" class="btn-group flex-wrap" role="group">
+                        <!-- Member filter buttons will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="scheduleTable">
+                        <thead class="table-dark">
+                            <!-- Table headers will be generated dynamically -->
+                        </thead>
+                        <tbody>
+                            <!-- Table body will be generated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for user input -->
+    <div class="modal fade" id="attendeeModal" tabindex="-1" aria-labelledby="attendeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="attendeeModalLabel">標記參加課程</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="attendeeName" class="form-label">您的名字：</label>
+                        <input type="text" class="form-control" id="attendeeName" placeholder="請輸入您的名字">
+                    </div>
+                    <div id="sessionInfo" class="mb-3">
+                        <!-- Session information will be displayed here -->
+                    </div>
+                    <div id="currentAttendees" class="mb-3">
+                        <!-- Current attendees will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="confirmAttendance">確認</button>
+                    <button type="button" class="btn btn-danger" id="removeAttendance">移除我的標記</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
