@@ -1,9 +1,36 @@
 {
   "sessions": [
     {
+      "code": "check-in",
+      "name": "報到",
+      "speaker": "",
+      "noReplay": true,
+      "room": "R1",
+      "timeSlot": "check-in",
+      "colspan": 4
+    },
+    {
+      "code": "opening",
+      "name": "Opening",
+      "speaker": "STUDY4",
+      "noReplay": true,
+      "room": "R1",
+      "timeSlot": "opening",
+      "colspan": 4
+    },
+    {
+      "code": "lunch",
+      "name": "交流 & 午餐",
+      "speaker": "",
+      "noReplay": true,
+      "room": "R1",
+      "timeSlot": "lunch",
+      "colspan": 4
+    },
+    {
       "code": "S001",
-      "name": "ASP.NET Core 最新功能介紹",
-      "speaker": "張大明",
+      "name": "關於語境工程（context engineering)的奇淫巧技",
+      "speaker": "尹相志",
       "noReplay": false,
       "room": "R1",
       "timeSlot": "T1",
@@ -11,17 +38,17 @@
     },
     {
       "code": "S002",
-      "name": "Entity Framework Core 進階應用",
-      "speaker": "李小華",
-      "noReplay": true,
+      "name": "TBD",
+      "speaker": "蔡文龍",
+      "noReplay": false,
       "room": "R2",
       "timeSlot": "T1",
       "colspan": 1
     },
     {
       "code": "S003",
-      "name": "Blazor 實戰開發",
-      "speaker": "王建國",
+      "name": "TBD",
+      "speaker": "Marcus Tung",
       "noReplay": false,
       "room": "R3",
       "timeSlot": "T1",
@@ -29,8 +56,8 @@
     },
     {
       "code": "S004",
-      "name": "微服務架構設計",
-      "speaker": "陳美玲",
+      "name": "TBD",
+      "speaker": "歐志信",
       "noReplay": false,
       "room": "R4",
       "timeSlot": "T1",
@@ -38,101 +65,200 @@
     },
     {
       "code": "S005",
-      "name": ".NET MAUI 跨平台開發",
-      "speaker": "林志明",
+      "name": "TBD",
+      "speaker": "Andrew Wu",
       "noReplay": false,
       "room": "R1",
       "timeSlot": "T2",
-      "colspan": 2
+      "colspan": 1
     },
     {
       "code": "S006",
-      "name": "Azure Functions 無伺服器應用",
-      "speaker": "黃淑芬",
-      "noReplay": true,
-      "room": "R3",
+      "name": "TBD",
+      "speaker": "TBD",
+      "noReplay": false,
+      "room": "R2",
       "timeSlot": "T2",
       "colspan": 1
     },
     {
       "code": "S007",
-      "name": "SignalR 即時通訊",
-      "speaker": "吳家豪",
+      "name": "TBD",
+      "speaker": "TBD",
+      "noReplay": false,
+      "room": "R3",
+      "timeSlot": "T2",
+      "colspan": 1
+    },
+    {
+      "code": "S008",
+      "name": "地端AIAgent+AutoGen, Token Intelligence無極限",
+      "speaker": "鮑承佑",
       "noReplay": false,
       "room": "R4",
       "timeSlot": "T2",
       "colspan": 1
     },
     {
-      "code": "S008",
-      "name": "C# 12 新特性",
-      "speaker": "鄭雅文",
+      "code": "S009",
+      "name": "AI時代工程師的軟技能",
+      "speaker": "李智樺",
       "noReplay": false,
       "room": "R1",
-      "timeSlot": "T4",
-      "colspan": 1
-    },
-    {
-      "code": "S009",
-      "name": ".NET 性能優化技巧",
-      "speaker": "劉俊傑",
-      "noReplay": false,
-      "room": "R2",
-      "timeSlot": "T4",
+      "timeSlot": "T3",
       "colspan": 1
     },
     {
       "code": "S010",
-      "name": "容器化部署實務",
-      "speaker": "許文龍",
-      "noReplay": true,
+      "name": "TBD",
+      "speaker": "TBD",
+      "noReplay": false,
+      "room": "R2",
+      "timeSlot": "T3",
+      "colspan": 1
+    },
+    {
+      "code": "S011",
+      "name": "C# 14 新功能",
+      "speaker": "Bill Chung",
+      "noReplay": false,
+      "room": "R3",
+      "timeSlot": "T3",
+      "colspan": 1
+    },
+    {
+      "code": "S012",
+      "name": "TBD",
+      "speaker": "TBD",
+      "noReplay": false,
+      "room": "R4",
+      "timeSlot": "T3",
+      "colspan": 1
+    },
+    {
+      "code": "S013",
+      "name": "ASP.NET Core 10.0 全新功能探索",
+      "speaker": "Will Huang",
+      "noReplay": false,
+      "room": "R1",
+      "timeSlot": "T4",
+      "colspan": 1
+    },
+    {
+      "code": "S014",
+      "name": "Azure AI Foundry 上的企業級 Agent 開發實踐：運用 Microsoft Agent Framework 與 Codex CLI 打造高效能多代理協作系統",
+      "speaker": "Jimmy Liao",
+      "noReplay": false,
+      "room": "R2",
+      "timeSlot": "T4",
+      "colspan": 1
+    },
+    {
+      "code": "S015",
+      "name": "震撼！SK：我還沒退場啊！Agent Framework：對不起，我來了",
+      "speaker": "陳葵懋 (Ian)",
+      "noReplay": false,
       "room": "R3",
       "timeSlot": "T4",
       "colspan": 1
     },
     {
-      "code": "S011",
-      "name": "CI/CD 自動化流程",
-      "speaker": "謝佳玲",
+      "code": "S016",
+      "name": "莫名其妙就跟世界級的 OpenSource 專案攪和了!?",
+      "speaker": "James Tsai",
       "noReplay": false,
       "room": "R4",
       "timeSlot": "T4",
       "colspan": 1
     },
     {
-      "code": "S012",
-      "name": "Clean Architecture 實作",
-      "speaker": "周志強",
+      "code": "S017",
+      "name": "數據驅動：研發效能與產品價值共舞",
+      "speaker": "沈宏洲 (Kyle) / 陳岳澤 (Derek)",
       "noReplay": false,
       "room": "R1",
       "timeSlot": "T5",
       "colspan": 1
     },
     {
-      "code": "S013",
-      "name": "單元測試最佳實踐",
-      "speaker": "蔡明宏",
+      "code": "S018",
+      "name": "TBD",
+      "speaker": "TBD",
       "noReplay": false,
       "room": "R2",
       "timeSlot": "T5",
       "colspan": 1
     },
     {
-      "code": "S014",
-      "name": "GraphQL 與 .NET",
-      "speaker": "楊雅婷",
+      "code": "S019",
+      "name": "地表最強 IDE Visual Studio 2026 來了！",
+      "speaker": "Demo Fan",
       "noReplay": false,
       "room": "R3",
       "timeSlot": "T5",
       "colspan": 1
     },
     {
-      "code": "S015",
-      "name": "安全性最佳實踐",
-      "speaker": "賴建宏",
-      "noReplay": true,
+      "code": "S020",
+      "name": "TBD",
+      "speaker": "TBD",
+      "noReplay": false,
       "room": "R4",
       "timeSlot": "T5",
+      "colspan": 1
+    },
+    {
+      "code": "S021",
+      "name": "在企業實施混合人工智慧解決方案",
+      "speaker": "Edward Kuo",
+      "noReplay": false,
+      "room": "R1",
+      "timeSlot": "T6",
+      "colspan": 1
+    },
+    {
+      "code": "S022",
+      "name": "使用 Azure AI 與 LangGraph 來開發 AI Agent",
+      "speaker": "KO KO",
+      "noReplay": false,
+      "room": "R2",
+      "timeSlot": "T6",
+      "colspan": 1
+    },
+    {
+      "code": "S023",
+      "name": "TBD",
+      "speaker": "TBD",
+      "noReplay": false,
+      "room": "R3",
+      "timeSlot": "T6",
+      "colspan": 1
+    },
+    {
+      "code": "S024",
+      "name": "TBD",
+      "speaker": "TBD",
+      "noReplay": false,
+      "room": "R1",
+      "timeSlot": "T7",
+      "colspan": 1
+    },
+    {
+      "code": "S025",
+      "name": "MS Ignite 2025 舊金山現場直擊 - 最新趨勢大剖析",
+      "speaker": "Ryan Chung",
+      "noReplay": false,
+      "room": "R2",
+      "timeSlot": "T7",
+      "colspan": 1
+    },
+    {
+      "code": "S026",
+      "name": "Chat Bot 的隱藏知識庫：RAG 以外的第二選擇",
+      "speaker": "蕭晊莛",
+      "noReplay": false,
+      "room": "R3",
+      "timeSlot": "T7",
       "colspan": 1
     }
   ]
