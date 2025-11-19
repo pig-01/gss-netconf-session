@@ -4,7 +4,7 @@
       "code": "check-in",
       "name": "報到",
       "speaker": "",
-      "noReplay": true,
+      "noReplay": false,
       "room": "R1",
       "timeSlot": "check-in",
       "colspan": 4
@@ -13,7 +13,7 @@
       "code": "opening",
       "name": "Opening",
       "speaker": "STUDY4",
-      "noReplay": true,
+      "noReplay": false,
       "room": "R1",
       "timeSlot": "opening",
       "colspan": 4
@@ -22,7 +22,7 @@
       "code": "lunch",
       "name": "交流 & 午餐",
       "speaker": "",
-      "noReplay": true,
+      "noReplay": false,
       "room": "R1",
       "timeSlot": "lunch",
       "colspan": 4
@@ -38,8 +38,8 @@
     },
     {
       "code": "S002",
-      "name": "TBD",
-      "speaker": "蔡文龍",
+      "name": "AI Agent啟動指南：全面解析Responses API與Realtime API",
+      "speaker": "蔡文龍/歐志信",
       "noReplay": false,
       "room": "R2",
       "timeSlot": "T1",
@@ -47,9 +47,9 @@
     },
     {
       "code": "S003",
-      "name": "TBD",
+      "name": "Spec-kit x O.D.D：打造 AI 時代的 .NET 開發新選擇？",
       "speaker": "Marcus Tung",
-      "noReplay": false,
+      "noReplay": true,
       "room": "R3",
       "timeSlot": "T1",
       "colspan": 1
@@ -65,26 +65,26 @@
     },
     {
       "code": "S005",
-      "name": "TBD",
-      "speaker": "Andrew Wu",
-      "noReplay": false,
+      "name": "AI Foundry X Github Copilot 帶你快速打造第一個 .NET的AI應用程式",
+      "speaker": "ATai/Shanna",
+      "noReplay": true,
       "room": "R1",
       "timeSlot": "T2",
       "colspan": 1
     },
     {
       "code": "S006",
-      "name": "TBD",
-      "speaker": "TBD",
-      "noReplay": false,
+      "name": "告別敏捷「假成功」：將承諾轉為可靠的價值交付",
+      "speaker": "Daisy",
+      "noReplay": true,
       "room": "R2",
       "timeSlot": "T2",
       "colspan": 1
     },
     {
       "code": "S007",
-      "name": "TBD",
-      "speaker": "TBD",
+      "name": "Designing for Agents: MCP-First Design Concepts",
+      "speaker": "Andrew Wu",
       "noReplay": false,
       "room": "R3",
       "timeSlot": "T2",
@@ -110,9 +110,9 @@
     },
     {
       "code": "S010",
-      "name": "TBD",
-      "speaker": "TBD",
-      "noReplay": false,
+      "name": "從規格與代理部署的圓舞曲",
+      "speaker": "Ahdaa",
+      "noReplay": true,
       "room": "R2",
       "timeSlot": "T3",
       "colspan": 1
@@ -128,8 +128,8 @@
     },
     {
       "code": "S012",
-      "name": "TBD",
-      "speaker": "TBD",
+      "name": "Building Intelligent Apps with .NET",
+      "speaker": "ChrisLiu",
       "noReplay": false,
       "room": "R4",
       "timeSlot": "T3",
@@ -182,8 +182,8 @@
     },
     {
       "code": "S018",
-      "name": "TBD",
-      "speaker": "TBD",
+      "name": "API Design First：設計先行但實作跑偏？聊聊設計與實作的一致性挑戰",
+      "speaker": "Alan Tsai ",
       "noReplay": false,
       "room": "R2",
       "timeSlot": "T5",
@@ -200,8 +200,8 @@
     },
     {
       "code": "S020",
-      "name": "TBD",
-      "speaker": "TBD",
+      "name": "AI Agent 也要技術選型嗎？深入了解語言模型跑分與評測資料集",
+      "speaker": "孫玉峰 (Summit Suen)",
       "noReplay": false,
       "room": "R4",
       "timeSlot": "T5",
@@ -211,15 +211,15 @@
       "code": "S021",
       "name": "在企業實施混合人工智慧解決方案",
       "speaker": "Edward Kuo",
-      "noReplay": false,
+      "noReplay": true,
       "room": "R1",
       "timeSlot": "T6",
       "colspan": 1
     },
     {
       "code": "S022",
-      "name": "使用 Azure AI 與 LangGraph 來開發 AI Agent",
-      "speaker": "KO KO",
+      "name": "Chat Bot 的隱藏知識庫：RAG 以外的第二選擇",
+      "speaker": "蕭晊莛",
       "noReplay": false,
       "room": "R2",
       "timeSlot": "T6",
@@ -227,8 +227,8 @@
     },
     {
       "code": "S023",
-      "name": "TBD",
-      "speaker": "TBD",
+      "name": "使用 Azure AI 與 LangGraph 來開發 AI Agent",
+      "speaker": "KO KO",
       "noReplay": false,
       "room": "R3",
       "timeSlot": "T6",
@@ -236,28 +236,46 @@
     },
     {
       "code": "S024",
-      "name": "TBD",
-      "speaker": "TBD",
+      "name": "當 Mermaid 遇上 Visual Studio 2026 會迸出什麼火花呢？",
+      "speaker": "Gelis Wu",
       "noReplay": false,
+      "room": "R4",
+      "timeSlot": "T6",
+      "colspan": 1
+    },
+    {
+      "code": "S025",
+      "name": "變革 👉 面對變革",
+      "speaker": "David Tung 董大偉",
+      "noReplay": true,
       "room": "R1",
       "timeSlot": "T7",
       "colspan": 1
     },
     {
-      "code": "S025",
-      "name": "MS Ignite 2025 舊金山現場直擊 - 最新趨勢大剖析",
-      "speaker": "Ryan Chung",
+      "code": "S026",
+      "name": "探索Azure AI內容安全，打造負責任的AI",
+      "speaker": "陳佳新",
       "noReplay": false,
       "room": "R2",
       "timeSlot": "T7",
       "colspan": 1
     },
     {
-      "code": "S026",
-      "name": "Chat Bot 的隱藏知識庫：RAG 以外的第二選擇",
-      "speaker": "蕭晊莛",
+      "code": "S027",
+      "name": "MS Ignite 2025 舊金山現場直擊 - 最新趨勢大剖析",
+      "speaker": "Ryan Chung",
       "noReplay": false,
       "room": "R3",
+      "timeSlot": "T7",
+      "colspan": 1
+    },
+    {
+      "code": "S028",
+      "name": "碼農出擊! GitHub Copilot 帶你飛：打造超效率開發術",
+      "speaker": "Tim Lai",
+      "noReplay": false,
+      "room": "R4",
       "timeSlot": "T7",
       "colspan": 1
     }
