@@ -5,6 +5,43 @@ let members = null;
 let currentSessionCode = null;
 let selectedMemberFilter = null;
 
+// LocalStorage key for user's courses
+const STORAGE_KEY = 'myNetConfCourses';
+
+// Helper function to get courses from localStorage
+function getMyCourses() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+}
+
+// Helper function to save courses to localStorage
+function saveMyCourses(courses) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+}
+
+// Helper function to add a course
+function addCourse(sessionCode) {
+    const courses = getMyCourses();
+    if (!courses.includes(sessionCode)) {
+        courses.push(sessionCode);
+        saveMyCourses(courses);
+        return true;
+    }
+    return false;
+}
+
+// Helper function to remove a course
+function removeCourse(sessionCode) {
+    const courses = getMyCourses();
+    const filtered = courses.filter(c => c !== sessionCode);
+    saveMyCourses(filtered);
+}
+
+// Helper function to clear all courses
+function clearAllCourses() {
+    localStorage.removeItem(STORAGE_KEY);
+}
+
 // Helper function to escape HTML to prevent XSS
 function escapeHtml(unsafe) {
     if (typeof unsafe !== 'string') return unsafe;
@@ -247,6 +284,7 @@ function filterByMember(memberName) {
 // Setup event listeners
 function setupEventListeners() {
     const modal = new bootstrap.Modal(document.getElementById('attendeeModal'));
+    const myCoursesModal = new bootstrap.Modal(document.getElementById('myCoursesModal'));
     
     // Click on session cells
     document.getElementById('scheduleTable').addEventListener('click', (e) => {
@@ -259,6 +297,46 @@ function setupEventListeners() {
         currentSessionCode = sessionCode;
         showAttendeeModal(sessionCode);
         modal.show();
+    });
+    
+    // Add course button
+    document.getElementById('addCourseBtn').addEventListener('click', () => {
+        if (!currentSessionCode) return;
+        
+        const added = addCourse(currentSessionCode);
+        if (added) {
+            alert(`已成功加入課程 ${currentSessionCode}！`);
+            // Update the button state
+            updateAddCourseButton();
+        } else {
+            alert(`課程 ${currentSessionCode} 已經在您的清單中。`);
+        }
+    });
+    
+    // View my courses button
+    document.getElementById('viewMyCoursesBtn').addEventListener('click', () => {
+        showMyCoursesModal();
+        myCoursesModal.show();
+    });
+    
+    // Copy JSON button
+    document.getElementById('copyJsonBtn').addEventListener('click', () => {
+        const jsonText = document.getElementById('myCoursesJson').textContent;
+        navigator.clipboard.writeText(jsonText).then(() => {
+            alert('JSON 已複製到剪貼簿！');
+        }).catch(err => {
+            console.error('複製失敗:', err);
+            alert('複製失敗，請手動複製。');
+        });
+    });
+    
+    // Clear courses button
+    document.getElementById('clearCoursesBtn').addEventListener('click', () => {
+        if (confirm('確定要清除所有已加入的課程嗎？')) {
+            clearAllCourses();
+            showMyCoursesModal();
+            alert('已清除所有課程！');
+        }
     });
 }
 
@@ -294,6 +372,71 @@ function showAttendeeModal(sessionCode) {
             <p>尚無成員標記</p>
         `;
     }
+    
+    // Update the add course button
+    updateAddCourseButton();
+}
+
+// Update add course button state
+function updateAddCourseButton() {
+    const btn = document.getElementById('addCourseBtn');
+    const myCourses = getMyCourses();
+    
+    if (myCourses.includes(currentSessionCode)) {
+        btn.textContent = '已加入課程';
+        btn.className = 'btn btn-success add-course-btn';
+        btn.disabled = true;
+    } else {
+        btn.textContent = '加入課程';
+        btn.className = 'btn btn-primary add-course-btn';
+        btn.disabled = false;
+    }
+}
+
+// Show my courses modal
+function showMyCoursesModal() {
+    const myCourses = getMyCourses();
+    const coursesList = document.getElementById('myCoursesList');
+    const jsonDiv = document.getElementById('myCoursesJson');
+    
+    if (myCourses.length === 0) {
+        coursesList.innerHTML = '<p class="text-muted">尚未加入任何課程</p>';
+        jsonDiv.textContent = '{}';
+        return;
+    }
+    
+    // Build courses list with details
+    let listHtml = '<h6>已加入的課程：</h6><ul class="list-group">';
+    myCourses.forEach(code => {
+        const session = sessions.sessions.find(s => s.code === code);
+        if (session) {
+            listHtml += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${escapeHtml(session.code)}</strong> - ${escapeHtml(session.name)}
+                        <br><small class="text-muted">講師: ${escapeHtml(session.speaker)}</small>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="removeAndRefresh('${escapeHtml(code)}')">移除</button>
+                </li>
+            `;
+        }
+    });
+    listHtml += '</ul>';
+    coursesList.innerHTML = listHtml;
+    
+    // Build JSON format matching members.json
+    const jsonFormat = {
+        name: "Your Name",
+        sessions: myCourses
+    };
+    
+    jsonDiv.textContent = JSON.stringify(jsonFormat, null, 2);
+}
+
+// Remove course and refresh modal
+function removeAndRefresh(code) {
+    removeCourse(code);
+    showMyCoursesModal();
 }
 
 // Start the application when DOM is ready

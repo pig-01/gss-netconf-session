@@ -8,8 +8,9 @@ body {
 }
 
 #scheduleTable {
-    min-width: 800px;
+    min-width: 1000px;
     background-color: white;
+    table-layout: fixed;
 }
 
 #scheduleTable thead th {
@@ -109,4 +110,29 @@ body {
 
 .empty-cell:hover {
     background-color: #f8f9fa;
+}
+
+.view-courses-btn {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.add-course-btn {
+    margin-top: 10px;
+}
+
+#myCoursesJson {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
 }

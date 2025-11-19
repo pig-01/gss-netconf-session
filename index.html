@@ -11,6 +11,9 @@
     <nav class="navbar navbar-dark bg-primary">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">.NET Conf 2025 議程表 - BDPDD 團隊</span>
+            <button type="button" class="btn btn-light view-courses-btn" id="viewMyCoursesBtn">
+                <i class="bi bi-bookmark-check"></i> 檢視我的課程
+            </button>
         </div>
     </nav>
 
@@ -64,6 +67,43 @@
                     </div>
                     <div id="currentAttendees" class="mb-3">
                         <!-- Current attendees will be displayed here -->
+                    </div>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-primary add-course-btn" id="addCourseBtn">
+                            加入課程
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for my courses -->
+    <div class="modal fade" id="myCoursesModal" tabindex="-1" aria-labelledby="myCoursesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="myCoursesModalLabel">我加入的課程</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info" role="alert">
+                        <strong>使用說明：</strong> 複製下方 JSON 格式，然後在 GitHub 上對 data/members.json 發起 Pull Request。
+                    </div>
+                    <div id="myCoursesList" class="mb-3">
+                        <!-- List of added courses will be displayed here -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="myCoursesJson" class="form-label"><strong>JSON 格式（可複製用於 PR）：</strong></label>
+                        <div id="myCoursesJson"></div>
+                    </div>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-primary" id="copyJsonBtn">
+                            <i class="bi bi-clipboard"></i> 複製 JSON
+                        </button>
+                        <button type="button" class="btn btn-danger" id="clearCoursesBtn">
+                            <i class="bi bi-trash"></i> 清除所有課程
+                        </button>
                     </div>
                 </div>
             </div>
