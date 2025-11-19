@@ -2,7 +2,6 @@
 let tableStructure = null;
 let sessions = null;
 let members = null;
-let attendanceData = {};
 let currentSessionCode = null;
 let selectedMemberFilter = null;
 
@@ -26,9 +25,6 @@ async function init() {
             loadSessions(),
             loadMembers()
         ]);
-        
-        // Load attendance data from localStorage
-        loadAttendanceData();
         
         // Generate the table
         generateTable();
@@ -62,17 +58,6 @@ async function loadMembers() {
     members = await response.json();
 }
 
-// Load attendance data from localStorage
-function loadAttendanceData() {
-    const stored = localStorage.getItem('netconf-attendance');
-    attendanceData = stored ? JSON.parse(stored) : {};
-}
-
-// Save attendance data to localStorage
-function saveAttendanceData() {
-    localStorage.setItem('netconf-attendance', JSON.stringify(attendanceData));
-}
-
 // Generate the schedule table
 function generateTable() {
     const table = document.getElementById('scheduleTable');
@@ -90,7 +75,7 @@ function generateTable() {
     // Add room headers
     tableStructure.rooms.forEach(room => {
         const th = document.createElement('th');
-        th.innerHTML = `${room.code}<br>${room.floor}<br>${room.name}`;
+        th.innerHTML = `${room.name}<br>${room.floor}`;
         headerRow.appendChild(th);
     });
     
@@ -164,14 +149,14 @@ function generateTable() {
                     titleDiv.appendChild(badge);
                 }
                 
-                // Add attendee tags
-                const attendeesDiv = document.createElement('div');
-                attendeesDiv.className = 'attendee-tags';
-                attendeesDiv.id = `attendees-${session.code}`;
-                td.appendChild(attendeesDiv);
+                // Add member tags for this session
+                const membersDiv = document.createElement('div');
+                membersDiv.className = 'attendee-tags';
+                membersDiv.id = `members-${session.code}`;
+                td.appendChild(membersDiv);
                 
-                // Update attendee tags
-                updateAttendeeTags(session.code);
+                // Update member tags
+                updateMemberTags(session.code);
                 
                 // Add click event for member filter highlighting
                 if (selectedMemberFilter) {
@@ -192,19 +177,23 @@ function generateTable() {
     });
 }
 
-// Update attendee tags for a session
-function updateAttendeeTags(sessionCode) {
-    const attendeesDiv = document.getElementById(`attendees-${sessionCode}`);
-    if (!attendeesDiv) return;
+// Update member tags for a session
+function updateMemberTags(sessionCode) {
+    const membersDiv = document.getElementById(`members-${sessionCode}`);
+    if (!membersDiv) return;
     
-    attendeesDiv.innerHTML = '';
+    membersDiv.innerHTML = '';
     
-    const attendees = attendanceData[sessionCode] || [];
-    attendees.forEach(name => {
+    // Find members who have this session in their sessions array
+    const attendingMembers = members.members.filter(member => 
+        member.sessions.includes(sessionCode)
+    );
+    
+    attendingMembers.forEach(member => {
         const tag = document.createElement('span');
         tag.className = 'attendee-tag';
-        tag.textContent = name;
-        attendeesDiv.appendChild(tag);
+        tag.textContent = member.name;
+        membersDiv.appendChild(tag);
     });
 }
 
@@ -258,9 +247,6 @@ function filterByMember(memberName) {
 // Setup event listeners
 function setupEventListeners() {
     const modal = new bootstrap.Modal(document.getElementById('attendeeModal'));
-    const confirmBtn = document.getElementById('confirmAttendance');
-    const removeBtn = document.getElementById('removeAttendance');
-    const nameInput = document.getElementById('attendeeName');
     
     // Click on session cells
     document.getElementById('scheduleTable').addEventListener('click', (e) => {
@@ -273,46 +259,6 @@ function setupEventListeners() {
         currentSessionCode = sessionCode;
         showAttendeeModal(sessionCode);
         modal.show();
-    });
-    
-    // Confirm attendance
-    confirmBtn.addEventListener('click', () => {
-        const name = nameInput.value.trim();
-        if (!name) {
-            alert('請輸入您的名字');
-            return;
-        }
-        
-        addAttendance(currentSessionCode, name);
-        nameInput.value = '';
-        modal.hide();
-    });
-    
-    // Remove attendance
-    removeBtn.addEventListener('click', () => {
-        const name = nameInput.value.trim();
-        if (!name) {
-            alert('請輸入您的名字');
-            return;
-        }
-        
-        removeAttendance(currentSessionCode, name);
-        nameInput.value = '';
-        modal.hide();
-    });
-    
-    // Load saved name from localStorage
-    const savedName = localStorage.getItem('netconf-username');
-    if (savedName) {
-        nameInput.value = savedName;
-    }
-    
-    // Save name to localStorage when changed
-    nameInput.addEventListener('change', () => {
-        const name = nameInput.value.trim();
-        if (name) {
-            localStorage.setItem('netconf-username', name);
-        }
     });
 }
 
@@ -331,43 +277,22 @@ function showAttendeeModal(sessionCode) {
     `;
     
     const currentAttendees = document.getElementById('currentAttendees');
-    const attendees = attendanceData[sessionCode] || [];
     
-    if (attendees.length > 0) {
+    // Find members who have this session in their sessions array
+    const attendingMembers = members.members.filter(member => 
+        member.sessions.includes(sessionCode)
+    );
+    
+    if (attendingMembers.length > 0) {
         currentAttendees.innerHTML = `
-            <h6>目前已標記參加的成員</h6>
-            <p>${attendees.map(name => escapeHtml(name)).join(', ')}</p>
+            <h6>標記參加的成員</h6>
+            <p>${attendingMembers.map(member => escapeHtml(member.name)).join(', ')}</p>
         `;
     } else {
         currentAttendees.innerHTML = `
-            <h6>目前已標記參加的成員</h6>
+            <h6>標記參加的成員</h6>
             <p>尚無成員標記</p>
         `;
-    }
-}
-
-// Add attendance
-function addAttendance(sessionCode, name) {
-    if (!attendanceData[sessionCode]) {
-        attendanceData[sessionCode] = [];
-    }
-    
-    if (!attendanceData[sessionCode].includes(name)) {
-        attendanceData[sessionCode].push(name);
-        saveAttendanceData();
-        updateAttendeeTags(sessionCode);
-    }
-}
-
-// Remove attendance
-function removeAttendance(sessionCode, name) {
-    if (attendanceData[sessionCode]) {
-        const index = attendanceData[sessionCode].indexOf(name);
-        if (index > -1) {
-            attendanceData[sessionCode].splice(index, 1);
-            saveAttendanceData();
-            updateAttendeeTags(sessionCode);
-        }
     }
 }
 

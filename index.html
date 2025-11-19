@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="alert alert-info" role="alert">
-                    <strong>使用說明：</strong> 點擊任何課程即可標記您的參加意願。您的標記將儲存在本地端，供您和其他使用此裝置的人瀏覽。
+                    <strong>使用說明：</strong> 點擊任何課程即可查看課程資訊及參加成員。
                 </div>
             </div>
         </div>
@@ -50,30 +50,21 @@
         </div>
     </div>
 
-    <!-- Modal for user input -->
+    <!-- Modal for session info -->
     <div class="modal fade" id="attendeeModal" tabindex="-1" aria-labelledby="attendeeModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="attendeeModalLabel">標記參加課程</h5>
+                    <h5 class="modal-title" id="attendeeModalLabel">課程資訊</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="attendeeName" class="form-label">您的名字：</label>
-                        <input type="text" class="form-control" id="attendeeName" placeholder="請輸入您的名字">
-                    </div>
                     <div id="sessionInfo" class="mb-3">
                         <!-- Session information will be displayed here -->
                     </div>
                     <div id="currentAttendees" class="mb-3">
                         <!-- Current attendees will be displayed here -->
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="confirmAttendance">確認</button>
-                    <button type="button" class="btn btn-danger" id="removeAttendance">移除我的標記</button>
                 </div>
             </div>
         </div>
