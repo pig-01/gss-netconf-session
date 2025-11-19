@@ -8,6 +8,14 @@ let selectedMemberFilter = null;
 // LocalStorage key for user's courses
 const STORAGE_KEY = 'myNetConfCourses';
 
+// Common sessions that should not be added to courses
+const COMMON_SESSIONS = ['check-in', 'opening', 'lunch'];
+
+// Helper function to check if session is a common session
+function isCommonSession(sessionCode) {
+    return COMMON_SESSIONS.includes(sessionCode);
+}
+
 // Helper function to get courses from localStorage
 function getMyCourses() {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -21,6 +29,11 @@ function saveMyCourses(courses) {
 
 // Helper function to add a course
 function addCourse(sessionCode) {
+    // Don't add common sessions
+    if (isCommonSession(sessionCode)) {
+        return false;
+    }
+    
     const courses = getMyCourses();
     if (!courses.includes(sessionCode)) {
         courses.push(sessionCode);
@@ -152,6 +165,12 @@ function generateTable() {
                 td.className = 'session-cell';
                 td.dataset.sessionCode = session.code;
                 
+                // Don't allow clicking on common sessions
+                if (isCommonSession(session.code)) {
+                    td.classList.add('common-session');
+                    td.style.cursor = 'default';
+                }
+                
                 // Handle colspan
                 if (session.colspan && session.colspan > 1) {
                     td.setAttribute('colspan', session.colspan);
@@ -166,16 +185,11 @@ function generateTable() {
                 titleDiv.className = 'session-title';
                 titleDiv.textContent = session.name;
                 
-                const codeDiv = document.createElement('div');
-                codeDiv.className = 'session-code';
-                codeDiv.textContent = `代號: ${session.code}`;
-                
                 const speakerDiv = document.createElement('div');
                 speakerDiv.className = 'session-speaker';
                 speakerDiv.textContent = `講師: ${session.speaker}`;
                 
                 td.appendChild(titleDiv);
-                td.appendChild(codeDiv);
                 td.appendChild(speakerDiv);
                 
                 // Add no-replay badge if applicable
@@ -294,6 +308,11 @@ function setupEventListeners() {
         const sessionCode = cell.dataset.sessionCode;
         if (!sessionCode) return;
         
+        // Don't show modal for common sessions
+        if (isCommonSession(sessionCode)) {
+            return;
+        }
+        
         currentSessionCode = sessionCode;
         showAttendeeModal(sessionCode);
         modal.show();
@@ -317,6 +336,11 @@ function setupEventListeners() {
     document.getElementById('viewMyCoursesBtn').addEventListener('click', () => {
         showMyCoursesModal();
         myCoursesModal.show();
+    });
+    
+    // Member select change event
+    document.getElementById('memberSelect').addEventListener('change', (e) => {
+        updateMyCoursesJson(e.target.value);
     });
     
     // Copy JSON button
@@ -398,6 +422,16 @@ function showMyCoursesModal() {
     const myCourses = getMyCourses();
     const coursesList = document.getElementById('myCoursesList');
     const jsonDiv = document.getElementById('myCoursesJson');
+    const memberSelect = document.getElementById('memberSelect');
+    
+    // Populate member dropdown
+    memberSelect.innerHTML = '<option value="">-- 請選擇成員 --</option>';
+    members.members.forEach(member => {
+        const option = document.createElement('option');
+        option.value = member.name;
+        option.textContent = member.name;
+        memberSelect.appendChild(option);
+    });
     
     if (myCourses.length === 0) {
         coursesList.innerHTML = '<p class="text-muted">尚未加入任何課程</p>';
@@ -424,10 +458,45 @@ function showMyCoursesModal() {
     listHtml += '</ul>';
     coursesList.innerHTML = listHtml;
     
-    // Build JSON format matching members.json
+    // Initial JSON display (no member selected)
+    updateMyCoursesJson('');
+}
+
+// Update JSON based on selected member
+function updateMyCoursesJson(selectedMemberName) {
+    const myCourses = getMyCourses();
+    const jsonDiv = document.getElementById('myCoursesJson');
+    
+    if (myCourses.length === 0) {
+        jsonDiv.textContent = '{}';
+        return;
+    }
+    
+    if (!selectedMemberName) {
+        // No member selected, show generic format
+        const jsonFormat = {
+            name: "Your Name",
+            sessions: myCourses
+        };
+        jsonDiv.textContent = JSON.stringify(jsonFormat, null, 2);
+        return;
+    }
+    
+    // Member selected, compare and adjust
+    const selectedMember = members.members.find(m => m.name === selectedMemberName);
+    if (!selectedMember) {
+        jsonDiv.textContent = '{}';
+        return;
+    }
+    
+    // Combine existing sessions with new ones (user's added courses)
+    // Remove duplicates and filter out common sessions
+    const combinedSessions = [...new Set([...selectedMember.sessions, ...myCourses])]
+        .filter(code => !isCommonSession(code));
+    
     const jsonFormat = {
-        name: "Your Name",
-        sessions: myCourses
+        name: selectedMember.name,
+        sessions: combinedSessions
     };
     
     jsonDiv.textContent = JSON.stringify(jsonFormat, null, 2);

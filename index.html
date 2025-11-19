@@ -88,7 +88,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info" role="alert">
-                        <strong>使用說明：</strong> 複製下方 JSON 格式，然後在 GitHub 上對 data/members.json 發起 Pull Request。
+                        <strong>使用說明：</strong> 選擇成員後，系統會比對現有議程並產生調整後的 JSON 格式，然後在 GitHub 上對 data/members.json 發起 Pull Request。
+                    </div>
+                    <div class="mb-3">
+                        <label for="memberSelect" class="form-label"><strong>選擇成員：</strong></label>
+                        <select class="form-select" id="memberSelect">
+                            <option value="">-- 請選擇成員 --</option>
+                        </select>
                     </div>
                     <div id="myCoursesList" class="mb-3">
                         <!-- List of added courses will be displayed here -->
