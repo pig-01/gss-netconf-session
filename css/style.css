@@ -1,0 +1,111 @@
+body {
+    font-family: 'Microsoft JhengHei', 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+#scheduleTable {
+    min-width: 800px;
+    background-color: white;
+}
+
+#scheduleTable thead th {
+    text-align: center;
+    vertical-align: middle;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#scheduleTable tbody td {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    vertical-align: middle;
+    position: relative;
+}
+
+#scheduleTable tbody td:hover {
+    background-color: #e9ecef;
+}
+
+.time-column {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    min-width: 100px;
+}
+
+.session-cell {
+    padding: 10px;
+    min-height: 60px;
+}
+
+.session-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.session-code {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.session-speaker {
+    color: #495057;
+    font-size: 0.9em;
+}
+
+.no-replay-badge {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.attendee-tags {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.attendee-tag {
+    display: inline-block;
+    background-color: #0d6efd;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.member-highlight {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+}
+
+#memberButtons .btn {
+    margin: 2px;
+}
+
+#sessionInfo {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#currentAttendees {
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.empty-cell {
+    background-color: #f8f9fa;
+    cursor: default;
+}
+
+.empty-cell:hover {
+    background-color: #f8f9fa;
+}
