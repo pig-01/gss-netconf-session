@@ -102,10 +102,24 @@ async function loadSessions() {
     sessions = await response.json();
 }
 
-// Load members from JSON
+// Load members from JSON or Google Sheets
 async function loadMembers() {
+    // Try to load from Google Sheets first if API is configured
+    if (isSheetsApiConfigured()) {
+        try {
+            members = await fetchMembersFromSheets();
+            console.log('Members loaded from Google Sheets');
+            return;
+        } catch (error) {
+            console.warn('Failed to load from Google Sheets, falling back to local JSON:', error);
+            // Fall through to load from local JSON
+        }
+    }
+    
+    // Fallback to local JSON file
     const response = await fetch('data/members.json');
     members = await response.json();
+    console.log('Members loaded from local JSON');
 }
 
 // Generate the schedule table
@@ -299,6 +313,7 @@ function filterByMember(memberName) {
 function setupEventListeners() {
     const modal = new bootstrap.Modal(document.getElementById('attendeeModal'));
     const myCoursesModal = new bootstrap.Modal(document.getElementById('myCoursesModal'));
+    const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
     
     // Click on session cells
     document.getElementById('scheduleTable').addEventListener('click', (e) => {
@@ -338,6 +353,12 @@ function setupEventListeners() {
         myCoursesModal.show();
     });
     
+    // Settings button
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+        showSettingsModal();
+        settingsModal.show();
+    });
+    
     // Member select change event
     document.getElementById('memberSelect').addEventListener('change', (e) => {
         updateMyCoursesJson(e.target.value);
@@ -360,6 +381,50 @@ function setupEventListeners() {
             clearAllCourses();
             showMyCoursesModal();
             alert('已清除所有課程！');
+        }
+    });
+    
+    // Settings modal - Save API Key button
+    document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
+        const apiKey = document.getElementById('apiKeyInput').value.trim();
+        if (apiKey) {
+            saveApiKey(apiKey);
+            updateApiKeyStatus();
+            alert('API Key 已儲存！請重新載入頁面以從 Google Sheets 載入資料。');
+        } else {
+            alert('請輸入有效的 API Key。');
+        }
+    });
+    
+    // Settings modal - Test API Key button
+    document.getElementById('testApiKeyBtn').addEventListener('click', async () => {
+        const apiKey = document.getElementById('apiKeyInput').value.trim();
+        if (!apiKey) {
+            alert('請先輸入 API Key。');
+            return;
+        }
+        
+        // Temporarily save the API key for testing
+        const oldApiKey = GOOGLE_SHEETS_CONFIG.apiKey;
+        GOOGLE_SHEETS_CONFIG.apiKey = apiKey;
+        
+        try {
+            await fetchMembersFromSheets();
+            alert('連線測試成功！API Key 可正常使用。');
+        } catch (error) {
+            alert(`連線測試失敗：${error.message}\n\n請確認：\n1. API Key 正確\n2. 已啟用 Google Sheets API\n3. 試算表權限設定為「知道連結的使用者」可檢視`);
+        } finally {
+            // Restore old API key
+            GOOGLE_SHEETS_CONFIG.apiKey = oldApiKey;
+        }
+    });
+    
+    // Settings modal - Clear API Key button
+    document.getElementById('clearApiKeyBtn').addEventListener('click', () => {
+        if (confirm('確定要清除 API Key 嗎？將改為使用本地 JSON 檔案。')) {
+            clearApiKey();
+            updateApiKeyStatus();
+            alert('API Key 已清除！請重新載入頁面以使用本地 JSON 檔案。');
         }
     });
 }
@@ -506,6 +571,32 @@ function updateMyCoursesJson(selectedMemberName) {
 function removeAndRefresh(code) {
     removeCourse(code);
     showMyCoursesModal();
+}
+
+// Show settings modal
+function showSettingsModal() {
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const currentApiKey = loadApiKey();
+    
+    // Pre-fill with current API key if exists
+    apiKeyInput.value = currentApiKey || '';
+    
+    // Update status
+    updateApiKeyStatus();
+}
+
+// Update API key status display
+function updateApiKeyStatus() {
+    const statusElement = document.getElementById('apiKeyStatus');
+    const apiKey = loadApiKey();
+    
+    if (apiKey) {
+        statusElement.textContent = '✓ API Key 已設定';
+        statusElement.className = 'form-text text-success';
+    } else {
+        statusElement.textContent = '尚未設定 API Key（將使用本地 JSON 檔案）';
+        statusElement.className = 'form-text text-muted';
+    }
 }
 
 // Start the application when DOM is ready

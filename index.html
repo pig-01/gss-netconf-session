@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>.NET Conf 2025 議程表 - BDPDD 團隊</title>
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <nav class="navbar navbar-dark bg-primary">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">.NET Conf 2025 議程表 - BDPDD 團隊</span>
-            <button type="button" class="btn btn-light view-courses-btn" id="viewMyCoursesBtn">
-                <i class="bi bi-bookmark-check"></i> 檢視我的課程
-            </button>
+            <div>
+                <button type="button" class="btn btn-light me-2" id="settingsBtn" title="Google Sheets 設定">
+                    <i class="bi bi-gear"></i>
+                </button>
+                <button type="button" class="btn btn-light view-courses-btn" id="viewMyCoursesBtn">
+                    <i class="bi bi-bookmark-check"></i> 檢視我的課程
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -116,7 +122,46 @@
         </div>
     </div>
 
+    <!-- Modal for settings -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Google Sheets API 設定</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info" role="alert">
+                        <strong>說明：</strong>
+                        <p>若要從 Google Sheets 載入成員資料，請輸入 Google Sheets API Key。</p>
+                        <p><strong>取得 API Key 步驟：</strong></p>
+                        <ol>
+                            <li>前往 <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                            <li>建立或選擇專案</li>
+                            <li>啟用 Google Sheets API</li>
+                            <li>建立憑證 (API Key)</li>
+                            <li>將試算表設為「知道連結的使用者」可檢視</li>
+                        </ol>
+                        <p><strong>試算表網址：</strong></p>
+                        <p><a href="https://docs.google.com/spreadsheets/d/1PpyJ_JGtgqrIkffvEjPwBscoMokK5_lKvMh6xFK4JV8/edit" target="_blank">開啟 Google Spreadsheet</a></p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="apiKeyInput" class="form-label"><strong>API Key：</strong></label>
+                        <input type="text" class="form-control" id="apiKeyInput" placeholder="輸入您的 Google Sheets API Key">
+                        <small class="form-text text-muted" id="apiKeyStatus"></small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" id="saveApiKeyBtn">儲存 API Key</button>
+                        <button type="button" class="btn btn-secondary" id="testApiKeyBtn">測試連線</button>
+                        <button type="button" class="btn btn-danger" id="clearApiKeyBtn">清除 API Key</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="js/google-sheets-api.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
