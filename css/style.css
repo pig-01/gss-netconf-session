@@ -25,6 +25,7 @@ body {
     transition: background-color 0.2s;
     vertical-align: middle;
     position: relative;
+    text-align: center;
 }
 
 #scheduleTable tbody td:hover {
