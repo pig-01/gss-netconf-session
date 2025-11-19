@@ -110,8 +110,8 @@ jobs:
           script: |
             const fs = require('fs');
             
-            const memberName = '${{ steps.parse.outputs.member_name }}';
-            const newSessions = JSON.parse('${{ steps.parse.outputs.sessions }}');
+            const memberName = `${{ steps.parse.outputs.member_name }}`;
+            const newSessions = ${{ steps.parse.outputs.sessions }};
             
             // Read members.json
             const membersData = JSON.parse(fs.readFileSync('data/members.json', 'utf8'));
@@ -129,8 +129,10 @@ jobs:
       
       - name: Create Pull Request
         if: steps.parse.outputs.valid == 'true'
+        id: create-pr
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update session registration for ${{ steps.parse.outputs.member_name }}"
           branch: session-registration/${{ github.event.issue.number }}
           delete-branch: true
@@ -150,15 +152,16 @@ jobs:
           labels: automated-pr, session-registration
       
       - name: Comment on issue (success)
-        if: steps.parse.outputs.valid == 'true'
+        if: steps.parse.outputs.valid == 'true' && steps.create-pr.outcome == 'success'
         uses: actions/github-script@v7
         with:
           script: |
+            const sessions = ${{ steps.parse.outputs.sessions }};
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ Session registration processed successfully!\n\n**Member:** ${{ steps.parse.outputs.member_name }}\n**Sessions:** ${{ steps.parse.outputs.sessions }}\n\nA pull request has been created to update the registration.`
+              body: `✅ Session registration processed successfully!\n\n**Member:** ${{ steps.parse.outputs.member_name }}\n**Sessions:** ${JSON.stringify(sessions)}\n\nA pull request has been created to update the registration.`
             });
       
       - name: Comment on issue (failure)
