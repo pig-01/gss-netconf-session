@@ -10,6 +10,7 @@
 - 💾 本地儲存標記資料
 - 📱 響應式設計，支援手機瀏覽
 - ☁️ Google Sheets API 整合，支援動態成員管理
+- 🤖 **新功能：透過 GitHub Issue 自動化議程登記** - [使用說明](ISSUE_REGISTRATION.md)
 
 ## 如何使用
 
@@ -19,6 +20,29 @@
 4. 輸入您的名字並確認
 5. 您的標記將顯示在課程下方
 6. 使用上方的成員篩選按鈕來查看特定成員選擇的課程
+
+## 🤖 議程自動化登記（GitHub Issue）
+
+**新功能！** 現在可以透過建立 GitHub Issue 的方式自動化處理議程報名。
+
+### 快速開始
+
+1. 建立一個新的 Issue，標題以 `[新增議程]` 開頭
+2. 在 Issue 內文中貼上 JSON 格式的報名資料：
+   ```json
+   {
+     "name": "Jason Tsai",
+     "sessions": ["S013", "S014", "S015"]
+   }
+   ```
+3. 提交 Issue 後，系統會自動：
+   - ✅ 驗證資料格式與有效性
+   - ✅ 建立 Pull Request 更新 `members.json`
+   - ✅ 在 Issue 中留言告知處理結果
+
+### 詳細說明
+
+完整的使用說明、驗證規則、範例場景，請參考 **[議程自動化登記說明文件](ISSUE_REGISTRATION.md)**。
 
 ## Google Sheets API 整合
 
