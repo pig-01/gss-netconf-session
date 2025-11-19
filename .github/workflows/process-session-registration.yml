@@ -1,0 +1,174 @@
+name: Process Session Registration
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  process-registration:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, '[新增議程]')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Parse and validate issue
+        id: parse
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read the issue body
+            const issueBody = context.payload.issue.body || '';
+            console.log('Issue body:', issueBody);
+            
+            // Extract JSON from issue body
+            const jsonMatch = issueBody.match(/```json\s*([\s\S]*?)\s*```/) || 
+                             issueBody.match(/\{[\s\S]*?"name"[\s\S]*?"sessions"[\s\S]*?\}/);
+            
+            if (!jsonMatch) {
+              core.setFailed('No JSON found in issue body');
+              return;
+            }
+            
+            const jsonStr = jsonMatch[1] || jsonMatch[0];
+            console.log('Extracted JSON:', jsonStr);
+            
+            let registrationData;
+            try {
+              registrationData = JSON.parse(jsonStr);
+            } catch (error) {
+              core.setFailed(`Invalid JSON format: ${error.message}`);
+              return;
+            }
+            
+            // Validate required fields
+            if (!registrationData.name || !registrationData.sessions) {
+              core.setFailed('JSON must contain "name" and "sessions" fields');
+              return;
+            }
+            
+            if (!Array.isArray(registrationData.sessions)) {
+              core.setFailed('"sessions" field must be an array');
+              return;
+            }
+            
+            // Read members.json
+            const membersData = JSON.parse(fs.readFileSync('data/members.json', 'utf8'));
+            const member = membersData.members.find(m => m.name === registrationData.name);
+            
+            if (!member) {
+              core.setFailed(`Member "${registrationData.name}" not found in members.json`);
+              return;
+            }
+            
+            // Read sessions.json
+            const sessionsData = JSON.parse(fs.readFileSync('data/sessions.json', 'utf8'));
+            const validSessionCodes = sessionsData.sessions
+              .filter(s => !['check-in', 'opening', 'lunch'].includes(s.code))
+              .map(s => s.code);
+            
+            // Filter valid sessions only
+            const validSessions = registrationData.sessions.filter(code => {
+              if (['check-in', 'opening', 'lunch'].includes(code)) {
+                console.log(`Skipping generic session: ${code}`);
+                return false;
+              }
+              if (!validSessionCodes.includes(code)) {
+                console.log(`Invalid session code: ${code}`);
+                return false;
+              }
+              return true;
+            });
+            
+            // Set outputs
+            core.setOutput('member_name', registrationData.name);
+            core.setOutput('sessions', JSON.stringify(validSessions));
+            core.setOutput('valid', 'true');
+            
+            console.log(`Valid member: ${registrationData.name}`);
+            console.log(`Valid sessions: ${JSON.stringify(validSessions)}`);
+      
+      - name: Update members.json
+        if: steps.parse.outputs.valid == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            const memberName = '${{ steps.parse.outputs.member_name }}';
+            const newSessions = JSON.parse('${{ steps.parse.outputs.sessions }}');
+            
+            // Read members.json
+            const membersData = JSON.parse(fs.readFileSync('data/members.json', 'utf8'));
+            
+            // Find and update the member
+            const memberIndex = membersData.members.findIndex(m => m.name === memberName);
+            if (memberIndex !== -1) {
+              membersData.members[memberIndex].sessions = newSessions;
+            }
+            
+            // Write updated data back to members.json
+            fs.writeFileSync('data/members.json', JSON.stringify(membersData, null, 2) + '\n');
+            
+            console.log(`Updated sessions for ${memberName}: ${JSON.stringify(newSessions)}`);
+      
+      - name: Create Pull Request
+        if: steps.parse.outputs.valid == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Update session registration for ${{ steps.parse.outputs.member_name }}"
+          branch: session-registration/${{ github.event.issue.number }}
+          delete-branch: true
+          title: "[議程更新] Update sessions for ${{ steps.parse.outputs.member_name }}"
+          body: |
+            ## Session Registration Update
+            
+            This PR was automatically created from issue #${{ github.event.issue.number }}
+            
+            **Member:** ${{ steps.parse.outputs.member_name }}
+            **New Sessions:** ${{ steps.parse.outputs.sessions }}
+            
+            ### Changes
+            - Updated session registration for ${{ steps.parse.outputs.member_name }}
+            
+            Closes #${{ github.event.issue.number }}
+          labels: automated-pr, session-registration
+      
+      - name: Comment on issue (success)
+        if: steps.parse.outputs.valid == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ Session registration processed successfully!\n\n**Member:** ${{ steps.parse.outputs.member_name }}\n**Sessions:** ${{ steps.parse.outputs.sessions }}\n\nA pull request has been created to update the registration.`
+            });
+      
+      - name: Comment on issue (failure)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ Failed to process session registration. Please check the workflow logs for details.\n\nMake sure:\n- The issue title starts with \`[新增議程]\`\n- The issue body contains valid JSON with "name" and "sessions" fields\n- The member name exists in members.json\n- All session codes are valid and not generic sessions (check-in, opening, lunch)`
+            });
