@@ -9,6 +9,7 @@
 - 👥 成員篩選功能
 - 💾 本地儲存標記資料
 - 📱 響應式設計，支援手機瀏覽
+- ☁️ Google Sheets API 整合，支援動態成員管理
 
 ## 如何使用
 
@@ -19,6 +20,56 @@
 5. 您的標記將顯示在課程下方
 6. 使用上方的成員篩選按鈕來查看特定成員選擇的課程
 
+## Google Sheets API 整合
+
+### 設定說明
+
+本專案支援從 Google Sheets 載入成員資料，讓團隊成員可以直接在試算表中管理自己的議程選擇。
+
+#### 取得 Google Sheets API Key
+
+1. 前往 [Google Cloud Console](https://console.cloud.google.com/)
+2. 建立或選擇專案
+3. 啟用 Google Sheets API
+   - 在左側選單中選擇「API 和服務」>「程式庫」
+   - 搜尋「Google Sheets API」
+   - 點擊「啟用」
+4. 建立憑證（API Key）
+   - 在左側選單中選擇「API 和服務」>「憑證」
+   - 點擊「建立憑證」>「API 金鑰」
+   - 複製產生的 API Key
+5. 設定試算表權限
+   - 開啟 [團隊議程試算表](https://docs.google.com/spreadsheets/d/1PpyJ_JGtgqrIkffvEjPwBscoMokK5_lKvMh6xFK4JV8/edit)
+   - 點擊右上角「共用」
+   - 將「一般存取權」設為「知道連結的使用者」可檢視
+
+#### 在網站中設定 API Key
+
+1. 點擊網站右上角的齒輪圖示（⚙️）
+2. 在設定視窗中輸入您的 Google Sheets API Key
+3. 點擊「測試連線」確認設定正確
+4. 點擊「儲存 API Key」
+5. 重新載入頁面，系統將自動從 Google Sheets 載入成員資料
+
+### Google Sheets 資料格式
+
+試算表的資料格式（範圍 A2:B8）：
+
+| 欄位 A（成員名稱） | 欄位 B（議程代碼，JSON 格式） |
+|------------------|----------------------------|
+| Kuro Chen        | ["S001", "S002", "S003"]   |
+| Shuni Chen       | ["S004", "S005"]           |
+
+- **欄位 A**：成員名稱
+- **欄位 B**：該成員選擇的議程代碼，使用 JSON 陣列格式或逗號分隔的字串
+
+### 注意事項
+
+- 目前僅支援從 Google Sheets **讀取**成員資料
+- 若要更新成員的議程選擇，請直接在 Google Sheets 中編輯
+- 如果未設定 API Key，系統將自動使用本地的 `data/members.json` 檔案
+- API Key 儲存在瀏覽器的 localStorage 中，僅在您的裝置上使用
+
 ## 技術棧
 
 - HTML5
@@ -26,6 +77,7 @@
 - JavaScript (Vanilla JS)
 - JSON 資料儲存
 - LocalStorage 本地資料持久化
+- Google Sheets API v4
 
 ## 資料檔案說明
 
@@ -45,9 +97,11 @@
 - `colspan`: 跨欄數（可選）
 
 ### data/members.json
-定義 BDPDD 成員資訊：
+定義 BDPDD 成員資訊（Fallback 用）：
 - `name`: 成員名稱
 - `sessions`: 該成員選擇的課程代號列表
+
+**注意**：如果設定了 Google Sheets API，系統會優先從試算表載入成員資料。
 
 ## 本地開發
 
