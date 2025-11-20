@@ -4,9 +4,10 @@ let sessions = null;
 let members = null;
 let currentSessionCode = null;
 let selectedMemberFilter = null;
+let currentUser = null; // Current user selected from dropdown
 
-// LocalStorage key for user's courses
-const STORAGE_KEY = 'myNetConfCourses';
+// LocalStorage key for current user
+const CURRENT_USER_KEY = 'currentNetConfUser';
 
 // Common sessions that should not be added to courses
 const COMMON_SESSIONS = ['check-in', 'opening', 'lunch'];
@@ -16,43 +17,63 @@ function isCommonSession(sessionCode) {
     return COMMON_SESSIONS.includes(sessionCode);
 }
 
-// Helper function to get courses from localStorage
-function getMyCourses() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+// Helper function to get current user from localStorage
+function getCurrentUser() {
+    return localStorage.getItem(CURRENT_USER_KEY);
 }
 
-// Helper function to save courses to localStorage
-function saveMyCourses(courses) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+// Helper function to save current user to localStorage
+function saveCurrentUser(userName) {
+    localStorage.setItem(CURRENT_USER_KEY, userName);
+    currentUser = userName;
 }
 
-// Helper function to add a course
-function addCourse(sessionCode) {
+// Helper function to add a session for current user
+async function addSessionForCurrentUser(sessionCode) {
     // Don't add common sessions
     if (isCommonSession(sessionCode)) {
         return false;
     }
     
-    const courses = getMyCourses();
-    if (!courses.includes(sessionCode)) {
-        courses.push(sessionCode);
-        saveMyCourses(courses);
+    if (!currentUser) {
+        throw new Error('Please select your name first');
+    }
+    
+    // Find the current user in members
+    const member = members.members.find(m => m.name === currentUser);
+    if (!member) {
+        throw new Error(`Member ${currentUser} not found`);
+    }
+    
+    // Check if already in sessions
+    if (member.sessions.includes(sessionCode)) {
+        return false; // Already added
+    }
+    
+    // Add to sessions array
+    const updatedSessions = [...member.sessions, sessionCode];
+    
+    // Update in Google Sheets if configured
+    if (isSheetsApiConfigured() && isWebAppConfigured()) {
+        try {
+            await updateMemberInSheets(currentUser, updatedSessions);
+            // Reload members data from sheets
+            await loadMembers();
+            return true;
+        } catch (error) {
+            console.error('Failed to update Google Sheets:', error);
+            throw error;
+        }
+    } else {
+        // Update locally
+        member.sessions = updatedSessions;
         return true;
     }
-    return false;
 }
 
-// Helper function to remove a course
-function removeCourse(sessionCode) {
-    const courses = getMyCourses();
-    const filtered = courses.filter(c => c !== sessionCode);
-    saveMyCourses(filtered);
-}
-
-// Helper function to clear all courses
-function clearAllCourses() {
-    localStorage.removeItem(STORAGE_KEY);
+// Helper function to check if Web App is configured
+function isWebAppConfigured() {
+    return !!(GOOGLE_SHEETS_CONFIG.webAppUrl || loadWebAppUrl());
 }
 
 // Helper function to escape HTML to prevent XSS
@@ -75,6 +96,15 @@ async function init() {
             loadSessions(),
             loadMembers()
         ]);
+        
+        // Load current user from localStorage
+        const savedUser = getCurrentUser();
+        if (savedUser) {
+            currentUser = savedUser;
+        }
+        
+        // Generate the current user dropdown
+        generateCurrentUserDropdown();
         
         // Generate the table
         generateTable();
@@ -286,6 +316,25 @@ function generateMemberButtons() {
     });
 }
 
+// Generate current user dropdown
+function generateCurrentUserDropdown() {
+    const select = document.getElementById('currentUserSelect');
+    select.innerHTML = '<option value="">-- 請選擇您的名字 --</option>';
+    
+    members.members.forEach(member => {
+        const option = document.createElement('option');
+        option.value = member.name;
+        option.textContent = member.name;
+        
+        // Select the current user if set
+        if (currentUser && member.name === currentUser) {
+            option.selected = true;
+        }
+        
+        select.appendChild(option);
+    });
+}
+
 // Filter table by member
 function filterByMember(memberName) {
     selectedMemberFilter = memberName;
@@ -312,8 +361,20 @@ function filterByMember(memberName) {
 // Setup event listeners
 function setupEventListeners() {
     const modal = new bootstrap.Modal(document.getElementById('attendeeModal'));
-    const myCoursesModal = new bootstrap.Modal(document.getElementById('myCoursesModal'));
     const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
+    
+    // Current user select change event
+    document.getElementById('currentUserSelect').addEventListener('change', (e) => {
+        const selectedUser = e.target.value;
+        if (selectedUser) {
+            saveCurrentUser(selectedUser);
+            // Regenerate table to update highlights
+            generateTable();
+        } else {
+            currentUser = null;
+            localStorage.removeItem(CURRENT_USER_KEY);
+        }
+    });
     
     // Click on session cells
     document.getElementById('scheduleTable').addEventListener('click', (e) => {
@@ -333,24 +394,32 @@ function setupEventListeners() {
         modal.show();
     });
     
-    // Add course button
-    document.getElementById('addCourseBtn').addEventListener('click', () => {
+    // Add to table button
+    document.getElementById('addToTableBtn').addEventListener('click', async () => {
         if (!currentSessionCode) return;
         
-        const added = addCourse(currentSessionCode);
-        if (added) {
-            alert(`已成功加入課程 ${currentSessionCode}！`);
-            // Update the button state
-            updateAddCourseButton();
-        } else {
-            alert(`課程 ${currentSessionCode} 已經在您的清單中。`);
+        if (!currentUser) {
+            alert('請先在頁面上方選擇您的名字！');
+            return;
         }
-    });
-    
-    // View my courses button
-    document.getElementById('viewMyCoursesBtn').addEventListener('click', () => {
-        showMyCoursesModal();
-        myCoursesModal.show();
+        
+        try {
+            const added = await addSessionForCurrentUser(currentSessionCode);
+            if (added) {
+                alert(`已成功加入課程 ${currentSessionCode}！`);
+                // Update the table to show new member tag
+                generateTable();
+                // Update the modal to show updated attendees
+                showAttendeeModal(currentSessionCode);
+                // Update the button state
+                updateAddCourseButton();
+            } else {
+                alert(`您已經加入課程 ${currentSessionCode}。`);
+            }
+        } catch (error) {
+            console.error('Failed to add course:', error);
+            alert(`加入課程失敗：${error.message}`);
+        }
     });
     
     // Settings button
@@ -359,40 +428,26 @@ function setupEventListeners() {
         settingsModal.show();
     });
     
-    // Member select change event
-    document.getElementById('memberSelect').addEventListener('change', (e) => {
-        updateMyCoursesJson(e.target.value);
-    });
-    
-    // Copy JSON button
-    document.getElementById('copyJsonBtn').addEventListener('click', () => {
-        const jsonText = document.getElementById('myCoursesJson').textContent;
-        navigator.clipboard.writeText(jsonText).then(() => {
-            alert('JSON 已複製到剪貼簿！');
-        }).catch(err => {
-            console.error('複製失敗:', err);
-            alert('複製失敗，請手動複製。');
-        });
-    });
-    
-    // Clear courses button
-    document.getElementById('clearCoursesBtn').addEventListener('click', () => {
-        if (confirm('確定要清除所有已加入的課程嗎？')) {
-            clearAllCourses();
-            showMyCoursesModal();
-            alert('已清除所有課程！');
-        }
-    });
-    
     // Settings modal - Save API Key button
     document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
         const apiKey = document.getElementById('apiKeyInput').value.trim();
+        const webAppUrl = document.getElementById('webAppUrlInput').value.trim();
+        
         if (apiKey) {
             saveApiKey(apiKey);
-            updateApiKeyStatus();
-            alert('API Key 已儲存！請重新載入頁面以從 Google Sheets 載入資料。');
+        }
+        
+        if (webAppUrl) {
+            saveWebAppUrl(webAppUrl);
+        }
+        
+        updateApiKeyStatus();
+        updateWebAppUrlStatus();
+        
+        if (apiKey || webAppUrl) {
+            alert('設定已儲存！請重新載入頁面以從 Google Sheets 載入資料。');
         } else {
-            alert('請輸入有效的 API Key。');
+            alert('請輸入至少一個設定項目。');
         }
     });
     
@@ -421,10 +476,14 @@ function setupEventListeners() {
     
     // Settings modal - Clear API Key button
     document.getElementById('clearApiKeyBtn').addEventListener('click', () => {
-        if (confirm('確定要清除 API Key 嗎？將改為使用本地 JSON 檔案。')) {
+        if (confirm('確定要清除所有設定嗎？將改為使用本地 JSON 檔案。')) {
             clearApiKey();
+            clearWebAppUrl();
             updateApiKeyStatus();
-            alert('API Key 已清除！請重新載入頁面以使用本地 JSON 檔案。');
+            updateWebAppUrlStatus();
+            document.getElementById('apiKeyInput').value = '';
+            document.getElementById('webAppUrlInput').value = '';
+            alert('設定已清除！請重新載入頁面以使用本地 JSON 檔案。');
         }
     });
 }
@@ -468,121 +527,41 @@ function showAttendeeModal(sessionCode) {
 
 // Update add course button state
 function updateAddCourseButton() {
-    const btn = document.getElementById('addCourseBtn');
-    const myCourses = getMyCourses();
+    const btn = document.getElementById('addToTableBtn');
     
-    if (myCourses.includes(currentSessionCode)) {
-        btn.textContent = '已加入課程';
+    if (!currentUser) {
+        btn.textContent = '請先選擇使用者';
+        btn.className = 'btn btn-secondary add-course-btn';
+        btn.disabled = true;
+        return;
+    }
+    
+    const member = members.members.find(m => m.name === currentUser);
+    if (member && member.sessions.includes(currentSessionCode)) {
+        btn.textContent = '已加入表格';
         btn.className = 'btn btn-success add-course-btn';
         btn.disabled = true;
     } else {
-        btn.textContent = '加入課程';
+        btn.textContent = '加入表格';
         btn.className = 'btn btn-primary add-course-btn';
         btn.disabled = false;
     }
 }
 
-// Show my courses modal
-function showMyCoursesModal() {
-    const myCourses = getMyCourses();
-    const coursesList = document.getElementById('myCoursesList');
-    const jsonDiv = document.getElementById('myCoursesJson');
-    const memberSelect = document.getElementById('memberSelect');
-    
-    // Populate member dropdown
-    memberSelect.innerHTML = '<option value="">-- 請選擇成員 --</option>';
-    members.members.forEach(member => {
-        const option = document.createElement('option');
-        option.value = member.name;
-        option.textContent = member.name;
-        memberSelect.appendChild(option);
-    });
-    
-    if (myCourses.length === 0) {
-        coursesList.innerHTML = '<p class="text-muted">尚未加入任何課程</p>';
-        jsonDiv.textContent = '{}';
-        return;
-    }
-    
-    // Build courses list with details
-    let listHtml = '<h6>已加入的課程：</h6><ul class="list-group">';
-    myCourses.forEach(code => {
-        const session = sessions.sessions.find(s => s.code === code);
-        if (session) {
-            listHtml += `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>${escapeHtml(session.code)}</strong> - ${escapeHtml(session.name)}
-                        <br><small class="text-muted">講師: ${escapeHtml(session.speaker)}</small>
-                    </div>
-                    <button class="btn btn-sm btn-danger" onclick="removeAndRefresh('${escapeHtml(code)}')">移除</button>
-                </li>
-            `;
-        }
-    });
-    listHtml += '</ul>';
-    coursesList.innerHTML = listHtml;
-    
-    // Initial JSON display (no member selected)
-    updateMyCoursesJson('');
-}
-
-// Update JSON based on selected member
-function updateMyCoursesJson(selectedMemberName) {
-    const myCourses = getMyCourses();
-    const jsonDiv = document.getElementById('myCoursesJson');
-    
-    if (myCourses.length === 0) {
-        jsonDiv.textContent = '{}';
-        return;
-    }
-    
-    if (!selectedMemberName) {
-        // No member selected, show generic format
-        const jsonFormat = {
-            name: "Your Name",
-            sessions: myCourses
-        };
-        jsonDiv.textContent = JSON.stringify(jsonFormat, null, 2);
-        return;
-    }
-    
-    // Member selected, compare and adjust
-    const selectedMember = members.members.find(m => m.name === selectedMemberName);
-    if (!selectedMember) {
-        jsonDiv.textContent = '{}';
-        return;
-    }
-    
-    // Combine existing sessions with new ones (user's added courses)
-    // Remove duplicates and filter out common sessions
-    const combinedSessions = [...new Set([...selectedMember.sessions, ...myCourses])]
-        .filter(code => !isCommonSession(code));
-    
-    const jsonFormat = {
-        name: selectedMember.name,
-        sessions: combinedSessions
-    };
-    
-    jsonDiv.textContent = JSON.stringify(jsonFormat, null, 2);
-}
-
-// Remove course and refresh modal
-function removeAndRefresh(code) {
-    removeCourse(code);
-    showMyCoursesModal();
-}
-
 // Show settings modal
 function showSettingsModal() {
     const apiKeyInput = document.getElementById('apiKeyInput');
+    const webAppUrlInput = document.getElementById('webAppUrlInput');
     const currentApiKey = loadApiKey();
+    const currentWebAppUrl = loadWebAppUrl();
     
-    // Pre-fill with current API key if exists
+    // Pre-fill with current values if exist
     apiKeyInput.value = currentApiKey || '';
+    webAppUrlInput.value = currentWebAppUrl || '';
     
     // Update status
     updateApiKeyStatus();
+    updateWebAppUrlStatus();
 }
 
 // Update API key status display
@@ -595,6 +574,20 @@ function updateApiKeyStatus() {
         statusElement.className = 'form-text text-success';
     } else {
         statusElement.textContent = '尚未設定 API Key（將使用本地 JSON 檔案）';
+        statusElement.className = 'form-text text-muted';
+    }
+}
+
+// Update Web App URL status display
+function updateWebAppUrlStatus() {
+    const statusElement = document.getElementById('webAppUrlStatus');
+    const webAppUrl = loadWebAppUrl();
+    
+    if (webAppUrl) {
+        statusElement.textContent = '✓ Web App URL 已設定（可寫入 Google Sheets）';
+        statusElement.className = 'form-text text-success';
+    } else {
+        statusElement.textContent = '尚未設定 Web App URL（無法寫入 Google Sheets）';
         statusElement.className = 'form-text text-muted';
     }
 }

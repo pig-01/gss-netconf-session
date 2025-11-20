@@ -10,8 +10,10 @@ const GOOGLE_SHEETS_CONFIG = {
     
     // Google API Key - This should be set by the user
     // For public read-only access, you can use an API key
-    // For write access, OAuth 2.0 is required
     apiKey: null, // Will be loaded from localStorage or config
+    
+    // Web App URL for writing data (Google Apps Script)
+    webAppUrl: null, // Will be loaded from localStorage
     
     // API endpoint
     apiEndpoint: 'https://sheets.googleapis.com/v4/spreadsheets'
@@ -36,6 +38,27 @@ function saveApiKey(apiKey) {
 function clearApiKey() {
     localStorage.removeItem('googleSheetsApiKey');
     GOOGLE_SHEETS_CONFIG.apiKey = null;
+}
+
+// Load Web App URL from localStorage
+function loadWebAppUrl() {
+    const url = localStorage.getItem('googleSheetsWebAppUrl');
+    if (url) {
+        GOOGLE_SHEETS_CONFIG.webAppUrl = url;
+    }
+    return url;
+}
+
+// Save Web App URL to localStorage
+function saveWebAppUrl(url) {
+    localStorage.setItem('googleSheetsWebAppUrl', url);
+    GOOGLE_SHEETS_CONFIG.webAppUrl = url;
+}
+
+// Clear Web App URL from localStorage
+function clearWebAppUrl() {
+    localStorage.removeItem('googleSheetsWebAppUrl');
+    GOOGLE_SHEETS_CONFIG.webAppUrl = null;
 }
 
 // Fetch members data from Google Sheets
@@ -97,31 +120,41 @@ function transformSheetDataToMembers(sheetData) {
 
 // Update a member's sessions in Google Sheets
 async function updateMemberInSheets(memberName, sessions) {
-    const apiKey = GOOGLE_SHEETS_CONFIG.apiKey || loadApiKey();
+    const webAppUrl = GOOGLE_SHEETS_CONFIG.webAppUrl || loadWebAppUrl();
     
-    if (!apiKey) {
-        throw new Error('Google Sheets API key not configured');
+    if (!webAppUrl) {
+        throw new Error('Google Apps Script Web App URL not configured. Please set it in settings.');
     }
     
-    // For updating, we need to find the row for this member
-    // First, fetch current data to find the row index
-    const currentData = await fetchMembersFromSheets();
-    const memberIndex = currentData.members.findIndex(m => m.name === memberName);
-    
-    if (memberIndex === -1) {
-        throw new Error(`Member ${memberName} not found in spreadsheet`);
+    try {
+        const response = await fetch(webAppUrl, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'updateMember',
+                memberName: memberName,
+                sessions: sessions
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to update Google Sheets: ${response.status} ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.status !== 'success') {
+            throw new Error(result.message || 'Unknown error updating Google Sheets');
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('Error updating Google Sheets:', error);
+        throw error;
     }
-    
-    // Calculate the actual row number (A2 is row 2, so index 0 corresponds to row 2)
-    const rowNumber = memberIndex + 2;
-    const updateRange = `B${rowNumber}`;
-    
-    // Prepare the update payload
-    const sessionsValue = JSON.stringify(sessions);
-    
-    // Note: This requires OAuth 2.0 authentication, not just API key
-    // For now, we'll throw an error indicating OAuth is needed
-    throw new Error('Updating Google Sheets requires OAuth 2.0 authentication. Please use the local storage method or manually update the spreadsheet.');
 }
 
 // Check if Google Sheets API is configured

@@ -16,9 +16,6 @@
                 <button type="button" class="btn btn-light me-2" id="settingsBtn" title="Google Sheets 設定">
                     <i class="bi bi-gear"></i>
                 </button>
-                <button type="button" class="btn btn-light view-courses-btn" id="viewMyCoursesBtn">
-                    <i class="bi bi-bookmark-check"></i> 檢視我的課程
-                </button>
             </div>
         </div>
     </nav>
@@ -27,8 +24,17 @@
         <div class="row">
             <div class="col-12">
                 <div class="alert alert-info" role="alert">
-                    <strong>使用說明：</strong> 點擊任何課程即可查看課程資訊及參加成員。
+                    <strong>使用說明：</strong> 先選擇您的名字，然後點擊任何課程即可加入課程。
                 </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <label for="currentUserSelect" class="form-label"><strong>當前使用者：</strong></label>
+                <select class="form-select" id="currentUserSelect">
+                    <option value="">-- 請選擇您的名字 --</option>
+                </select>
             </div>
         </div>
 
@@ -75,46 +81,8 @@
                         <!-- Current attendees will be displayed here -->
                     </div>
                     <div class="text-center">
-                        <button type="button" class="btn btn-primary add-course-btn" id="addCourseBtn">
-                            加入課程
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for my courses -->
-    <div class="modal fade" id="myCoursesModal" tabindex="-1" aria-labelledby="myCoursesModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="myCoursesModalLabel">我加入的課程</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info" role="alert">
-                        <strong>使用說明：</strong> 選擇成員後，系統會比對現有議程並產生調整後的 JSON 格式，然後在 GitHub 上對 data/members.json 發起 Pull Request。
-                    </div>
-                    <div class="mb-3">
-                        <label for="memberSelect" class="form-label"><strong>選擇成員：</strong></label>
-                        <select class="form-select" id="memberSelect">
-                            <option value="">-- 請選擇成員 --</option>
-                        </select>
-                    </div>
-                    <div id="myCoursesList" class="mb-3">
-                        <!-- List of added courses will be displayed here -->
-                    </div>
-                    <div class="mb-3">
-                        <label for="myCoursesJson" class="form-label"><strong>JSON 格式（可複製用於 PR）：</strong></label>
-                        <div id="myCoursesJson"></div>
-                    </div>
-                    <div class="text-center">
-                        <button type="button" class="btn btn-primary" id="copyJsonBtn">
-                            <i class="bi bi-clipboard"></i> 複製 JSON
-                        </button>
-                        <button type="button" class="btn btn-danger" id="clearCoursesBtn">
-                            <i class="bi bi-trash"></i> 清除所有課程
+                        <button type="button" class="btn btn-primary add-course-btn" id="addToTableBtn">
+                            加入表格
                         </button>
                     </div>
                 </div>
@@ -133,7 +101,7 @@
                 <div class="modal-body">
                     <div class="alert alert-info" role="alert">
                         <strong>說明：</strong>
-                        <p>若要從 Google Sheets 載入成員資料，請輸入 Google Sheets API Key。</p>
+                        <p>若要從 Google Sheets 載入成員資料及更新資料，請設定以下資訊。</p>
                         <p><strong>取得 API Key 步驟：</strong></p>
                         <ol>
                             <li>前往 <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
@@ -142,18 +110,30 @@
                             <li>建立憑證 (API Key)</li>
                             <li>將試算表設為「知道連結的使用者」可檢視</li>
                         </ol>
+                        <p><strong>設定 Google Apps Script Web App（用於寫入）：</strong></p>
+                        <ol>
+                            <li>開啟試算表，點擊「擴充功能」>「Apps Script」</li>
+                            <li>貼上提供的腳本程式碼（請參考文件）</li>
+                            <li>部署為「Web 應用程式」</li>
+                            <li>將 Web 應用程式 URL 貼在下方</li>
+                        </ol>
                         <p><strong>試算表網址：</strong></p>
                         <p><a href="https://docs.google.com/spreadsheets/d/1PpyJ_JGtgqrIkffvEjPwBscoMokK5_lKvMh6xFK4JV8/edit" target="_blank">開啟 Google Spreadsheet</a></p>
                     </div>
                     <div class="mb-3">
-                        <label for="apiKeyInput" class="form-label"><strong>API Key：</strong></label>
+                        <label for="apiKeyInput" class="form-label"><strong>API Key（用於讀取）：</strong></label>
                         <input type="text" class="form-control" id="apiKeyInput" placeholder="輸入您的 Google Sheets API Key">
                         <small class="form-text text-muted" id="apiKeyStatus"></small>
                     </div>
+                    <div class="mb-3">
+                        <label for="webAppUrlInput" class="form-label"><strong>Web App URL（用於寫入）：</strong></label>
+                        <input type="text" class="form-control" id="webAppUrlInput" placeholder="輸入您的 Google Apps Script Web App URL">
+                        <small class="form-text text-muted" id="webAppUrlStatus"></small>
+                    </div>
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary" id="saveApiKeyBtn">儲存 API Key</button>
+                        <button type="button" class="btn btn-primary" id="saveApiKeyBtn">儲存設定</button>
                         <button type="button" class="btn btn-secondary" id="testApiKeyBtn">測試連線</button>
-                        <button type="button" class="btn btn-danger" id="clearApiKeyBtn">清除 API Key</button>
+                        <button type="button" class="btn btn-danger" id="clearApiKeyBtn">清除設定</button>
                     </div>
                 </div>
             </div>
