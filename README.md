@@ -5,21 +5,25 @@
 ## 功能特點
 
 - 📅 互動式議程表格顯示
-- 🏷️ 點擊課程即可標記參加
+- 👤 使用者選擇器（自動儲存到 LocalStorage）
+- 🏷️ 點擊課程即可加入表格
 - 👥 成員篩選功能
 - 💾 本地儲存標記資料
 - 📱 響應式設計，支援手機瀏覽
-- ☁️ Google Sheets API 整合，支援動態成員管理
+- ☁️ Google Sheets API 整合，支援動態成員管理及即時更新
+- 🔄 透過 Google Apps Script Web App 直接寫入 Google Sheets
 - 🤖 **新功能：透過 GitHub Issue 自動化議程登記** - [使用說明](ISSUE_REGISTRATION.md)
 
 ## 如何使用
 
 1. 訪問 GitHub Pages 網站
-2. 瀏覽 .NET Conf 2025 的所有課程議程
-3. 點擊任何課程格子來標記您的參加意願
-4. 輸入您的名字並確認
-5. 您的標記將顯示在課程下方
-6. 使用上方的成員篩選按鈕來查看特定成員選擇的課程
+2. 在頁面上方的「當前使用者」下拉選單中選擇您的名字
+3. 瀏覽 .NET Conf 2025 的所有課程議程
+4. 點擊任何課程格子查看課程資訊
+5. 在彈出的視窗中點擊「加入表格」按鈕，將課程加入您的議程
+6. 您的名字將顯示在課程下方
+7. 使用「篩選成員」按鈕來查看特定成員選擇的課程
+8. 您選擇的使用者會自動儲存，下次開啟時會自動選取
 
 ## 🤖 議程自動化登記（GitHub Issue）
 
@@ -48,9 +52,9 @@
 
 ### 設定說明
 
-本專案支援從 Google Sheets 載入成員資料，讓團隊成員可以直接在試算表中管理自己的議程選擇。
+本專案支援從 Google Sheets 載入及更新成員資料，讓團隊成員可以直接在試算表中管理自己的議程選擇，也可以透過網頁介面直接加入課程並寫入 Google Sheets。
 
-#### 取得 Google Sheets API Key
+#### 取得 Google Sheets API Key（用於讀取）
 
 1. 前往 [Google Cloud Console](https://console.cloud.google.com/)
 2. 建立或選擇專案
@@ -67,12 +71,20 @@
    - 點擊右上角「共用」
    - 將「一般存取權」設為「知道連結的使用者」可檢視
 
-#### 在網站中設定 API Key
+#### 設定 Google Apps Script Web App（用於寫入）
+
+為了讓使用者能夠直接從網頁加入課程並寫入 Google Sheets，需要設定 Google Apps Script Web App。
+
+詳細設定步驟請參考：[Google Apps Script 設定說明](GOOGLE_APPS_SCRIPT.md)
+
+#### 在網站中設定
 
 1. 點擊網站右上角的齒輪圖示（⚙️）
-2. 在設定視窗中輸入您的 Google Sheets API Key
+2. 在設定視窗中：
+   - 輸入您的 Google Sheets API Key（用於讀取資料）
+   - 輸入您的 Google Apps Script Web App URL（用於寫入資料）
 3. 點擊「測試連線」確認設定正確
-4. 點擊「儲存 API Key」
+4. 點擊「儲存設定」
 5. 重新載入頁面，系統將自動從 Google Sheets 載入成員資料
 
 ### Google Sheets 資料格式
@@ -89,10 +101,15 @@
 
 ### 注意事項
 
-- 目前僅支援從 Google Sheets **讀取**成員資料
-- 若要更新成員的議程選擇，請直接在 Google Sheets 中編輯
-- 如果未設定 API Key，系統將自動使用本地的 `data/members.json` 檔案
-- API Key 儲存在瀏覽器的 localStorage 中，僅在您的裝置上使用
+- 目前支援從 Google Sheets **讀取**及**寫入**成員資料
+- 讀取資料使用 Google Sheets API Key
+- 寫入資料透過 Google Apps Script Web App（需要額外設定）
+- 若要更新成員的議程選擇：
+  1. 在網頁上選擇您的名字
+  2. 點擊課程並按「加入表格」
+  3. 系統會自動更新 Google Sheets
+- 如果未設定 API Key 或 Web App URL，系統將自動使用本地的 `data/members.json` 檔案
+- API Key 和 Web App URL 儲存在瀏覽器的 localStorage 中，僅在您的裝置上使用
 
 ## 技術棧
 
